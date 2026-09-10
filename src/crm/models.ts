@@ -33,9 +33,10 @@ export async function fetchModels(): Promise<Model[]> {
 }
 
 export async function fetchModel(slug: string): Promise<Model | null> {
+  // First try to find by slug field, then fall back to name-based lookup
   const sanityModels = await fetchFromSanity<SanityModel[]>(
-    `*[_type == "model" && name == $name]{${MODEL_FIELDS}}`,
-    { name: slugToText(slug) },
+    `*[_type == "model" && (slug.current == $slug || name == $name)]{${MODEL_FIELDS}}`,
+    { slug, name: slugToText(slug) },
     'model'
   );
 

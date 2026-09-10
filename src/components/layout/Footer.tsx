@@ -22,8 +22,8 @@ export function Footer() {
             <Link to='/privacy' variant='footer'>
               Privacy Policy
             </Link>
-            <Link to='/guidelines' variant='footer'>
-              Guidelines
+            <Link to='/terms' variant='footer'>
+              Terms & conditions
             </Link>
           </div>
 

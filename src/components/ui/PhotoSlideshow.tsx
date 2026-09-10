@@ -12,18 +12,34 @@ interface PhotoSlideshowProps {
 }
 
 export function PhotoSlideshow({ photos, className = '', initialPhotosPerSlide = 2 }: PhotoSlideshowProps) {
+  const firstSlideItemCount = 1;
+
   const { currentIndex, setCurrentIndex, itemsPerSlide, totalSlides, isHydrated, isTransitioning, goToPrevious, goToNext, handleDragEnd } =
     useSlideshow({
       itemCount: photos.length,
       initialItemsPerSlide: initialPhotosPerSlide,
+      firstSlideItemCount,
     });
 
   const { isDragging, getDragProps } = useDragHandler();
 
   // Calculate current photos for preloading
+  const effectiveFirstSlideCount = Math.min(firstSlideItemCount, itemsPerSlide);
+
+  const getStartIndex = (slideIndex: number) => {
+    if (slideIndex === 0) return 0;
+    return effectiveFirstSlideCount + (slideIndex - 1) * itemsPerSlide;
+  };
+
+  const getCountForSlide = (slideIndex: number) => {
+    return slideIndex === 0 ? effectiveFirstSlideCount : itemsPerSlide;
+  };
+
   const currentPhotoIndices: number[] = [];
-  for (let i = 0; i < itemsPerSlide; i++) {
-    const photoIndex = currentIndex * itemsPerSlide + i;
+  const preloadStart = getStartIndex(currentIndex);
+  const preloadCount = getCountForSlide(currentIndex);
+  for (let i = 0; i < preloadCount; i++) {
+    const photoIndex = preloadStart + i;
     if (photoIndex < photos.length) {
       currentPhotoIndices.push(photoIndex);
     }
@@ -31,18 +47,30 @@ export function PhotoSlideshow({ photos, className = '', initialPhotosPerSlide =
 
   const { isLoading } = useImagePreloader({
     images: photos,
-    currentIndex: currentIndex * itemsPerSlide,
+    currentIndex: getStartIndex(currentIndex),
     preloadAdjacent: itemsPerSlide,
   });
 
   // Preload adjacent slides
   useEffect(() => {
     const imagesToPreload: string[] = [];
+    const effectiveFirst = Math.min(firstSlideItemCount, itemsPerSlide);
+
+    const getStart = (slideIndex: number) => {
+      if (slideIndex === 0) return 0;
+      return effectiveFirst + (slideIndex - 1) * itemsPerSlide;
+    };
+
+    const getCount = (slideIndex: number) => {
+      return slideIndex === 0 ? effectiveFirst : itemsPerSlide;
+    };
 
     // Next slide images
     const nextIndex = (currentIndex + 1) % totalSlides;
-    for (let i = 0; i < itemsPerSlide; i++) {
-      const photoIndex = nextIndex * itemsPerSlide + i;
+    const nextStart = getStart(nextIndex);
+    const nextCount = getCount(nextIndex);
+    for (let i = 0; i < nextCount; i++) {
+      const photoIndex = nextStart + i;
       if (photoIndex < photos.length) {
         imagesToPreload.push(photos[photoIndex]);
       }
@@ -50,8 +78,10 @@ export function PhotoSlideshow({ photos, className = '', initialPhotosPerSlide =
 
     // Previous slide images
     const prevIndex = (currentIndex - 1 + totalSlides) % totalSlides;
-    for (let i = 0; i < itemsPerSlide; i++) {
-      const photoIndex = prevIndex * itemsPerSlide + i;
+    const prevStart = getStart(prevIndex);
+    const prevCount = getCount(prevIndex);
+    for (let i = 0; i < prevCount; i++) {
+      const photoIndex = prevStart + i;
       if (photoIndex < photos.length) {
         imagesToPreload.push(photos[photoIndex]);
       }
@@ -62,7 +92,7 @@ export function PhotoSlideshow({ photos, className = '', initialPhotosPerSlide =
       const img = new Image();
       img.src = src;
     });
-  }, [currentIndex, photos, itemsPerSlide, totalSlides]);
+  }, [currentIndex, photos, itemsPerSlide, totalSlides, firstSlideItemCount]);
 
   if (photos.length === 0) {
     return null;
@@ -70,11 +100,28 @@ export function PhotoSlideshow({ photos, className = '', initialPhotosPerSlide =
 
   // Always prepare 2 photos for initial render to match SSR
   const renderPhotosPerSlide = isHydrated ? itemsPerSlide : 2;
-  const renderTotalSlides = Math.ceil(photos.length / renderPhotosPerSlide);
+  const renderFirstSlideCount = Math.min(firstSlideItemCount, renderPhotosPerSlide);
+  const renderTotalSlides =
+    photos.length <= 0
+      ? 0
+      : photos.length <= renderFirstSlideCount
+        ? 1
+        : 1 + Math.ceil((photos.length - renderFirstSlideCount) / renderPhotosPerSlide);
 
+  const renderGetStartIndex = (slideIndex: number) => {
+    if (slideIndex === 0) return 0;
+    return renderFirstSlideCount + (slideIndex - 1) * renderPhotosPerSlide;
+  };
+
+  const renderGetCountForSlide = (slideIndex: number) => {
+    return slideIndex === 0 ? renderFirstSlideCount : renderPhotosPerSlide;
+  };
+
+  const startIdx = renderGetStartIndex(currentIndex);
+  const countForSlide = renderGetCountForSlide(currentIndex);
   const currentPhotos: string[] = [];
-  for (let i = 0; i < renderPhotosPerSlide; i++) {
-    const photoIndex = currentIndex * renderPhotosPerSlide + i;
+  for (let i = 0; i < countForSlide; i++) {
+    const photoIndex = startIdx + i;
     if (photoIndex < photos.length) {
       currentPhotos.push(photos[photoIndex]);
     }
@@ -88,7 +135,7 @@ export function PhotoSlideshow({ photos, className = '', initialPhotosPerSlide =
     <div className={`relative flex flex-col ${className}`} suppressHydrationWarning>
       {/* Photo display area - fixed height container */}
       <div
-        className={`relative flex items-center justify-center gap-2 md:gap-4 px-2 md:px-4 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
+        className={`relative flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
         style={{ height: 'calc(100vh - 320px)', minHeight: '400px' }}
         suppressHydrationWarning
         {...dragProps}
@@ -99,7 +146,7 @@ export function PhotoSlideshow({ photos, className = '', initialPhotosPerSlide =
             className={`relative h-full flex items-center justify-center ${isTransitioning ? 'animate-fade-in' : ''} ${
               index === 1 ? 'hidden md:flex' : ''
             }`}
-            style={{ flex: '1 1 0', minWidth: 0 }}
+            style={{ flex: '0 1 auto', minWidth: 0 }}
             suppressHydrationWarning
           >
             {/* Skeleton placeholder */}
@@ -107,8 +154,8 @@ export function PhotoSlideshow({ photos, className = '', initialPhotosPerSlide =
 
             <img
               src={photo}
-              alt={`Photo ${currentIndex * itemsPerSlide + index + 1}`}
-              className={`max-w-full h-full object-contain rounded-lg transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+              alt={`Photo ${startIdx + index + 1}`}
+              className={`max-w-full max-h-full rounded-lg transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
               loading='eager'
               draggable={false}
             />

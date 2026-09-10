@@ -3,10 +3,10 @@
  */
 
 /** Email address to receive application notifications */
-export const ADMIN_EMAIL = 'josroossien@hotmail.com';
+export const ADMIN_EMAIL = 'info@dstrct-mgmt.com';
 
 /** Email address shown as sender */
-export const FROM_EMAIL = 'DSTRCT <noreply@jroossien.com>';
+export const FROM_EMAIL = 'DSTRCT <noreply@dstrct-mgmt.com>';
 
 /** Company name for email templates */
 export const COMPANY_NAME = 'DSTRCT';

@@ -7,7 +7,11 @@ interface ModelCardProps {
 
 export function ModelCard({ model }: ModelCardProps) {
   return (
-    <Link to='/models/$slug' params={{ slug: model.slug }} className='relative aspect-3/4 overflow-hidden group cursor-pointer w-full block'>
+    <Link
+      to='/models/$slug'
+      params={{ slug: model.slug }}
+      className='relative aspect-3/4 overflow-hidden rounded-lg group cursor-pointer w-full block'
+    >
       <img src={model.photo} alt={model.name} className='w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300' />
       <div className='absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent pointer-events-none' />
       <div className='absolute bottom-0 left-0 right-0 p-6 flex justify-center'>

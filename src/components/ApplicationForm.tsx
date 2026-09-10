@@ -363,8 +363,8 @@ export function ApplicationForm({ onSuccess }: ApplicationFormProps) {
               Privacy Policy
             </Link>{' '}
             and{' '}
-            <Link to='/guidelines' className='underline'>
-              Guidelines
+            <Link to='/terms' className='underline'>
+              Terms & conditions
             </Link>
           </Checkbox>
         </section>

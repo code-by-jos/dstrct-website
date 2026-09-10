@@ -1,5 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 import { getRequestHeader } from '@tanstack/react-start/server';
+import { env } from 'cloudflare:workers';
 import { Resend } from 'resend';
 import { render } from '@react-email/render';
 import { applicationServerSchema, type ApplicationServerData } from '@/schemas/applicationSchema';
@@ -54,7 +55,7 @@ export const submitApplication = createServerFn({ method: 'POST' })
       }
 
       // Initialize Resend
-      const resendApiKey = process.env.RESEND_API_KEY;
+      const resendApiKey = env.RESEND_API_KEY;
       if (!resendApiKey) {
         console.error('RESEND_API_KEY is not configured');
         return {

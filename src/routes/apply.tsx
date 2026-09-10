@@ -6,7 +6,7 @@ import { ApplicationSuccess } from '@/components/ApplicationSuccess';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Container } from '@/components/ui/Container';
 import { Markdown } from '@/components/ui/Markdown';
-import { fetchTextContent, type TextDocument } from '@/crm/texts';
+import { fetchTextContentFn } from '@/server/fetchContent';
 import { CACHE_DURATION } from '@/constants/cache';
 
 function ApplyPage() {
@@ -36,7 +36,7 @@ function ApplyPage() {
 }
 
 export const Route = createFileRoute('/apply')({
-  loader: (): Promise<TextDocument | null> => fetchTextContent('apply'),
+  loader: () => fetchTextContentFn({ data: 'apply' }),
   staleTime: CACHE_DURATION.SHORT,
   errorComponent: ({ error }) => <ErrorPage title='Apply' error={error} />,
   component: ApplyPage,

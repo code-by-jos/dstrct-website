@@ -1,10 +1,23 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "dstrct-website",
-  "compatibility_date": "2025-01-01",
-  "compatibility_flags": ["nodejs_compat"],
-  "main": "@tanstack/react-start/server-entry",
-  "observability": {
-    "enabled": false,
-  },
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "dstrct-website",
+	"account_id": "e4c0462505c8548e12ea8ae441ef1244",
+	"compatibility_date": "2025-01-01",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"main": "@tanstack/react-start/server-entry",
+	"observability": {
+		"logs": {
+			"enabled": false,
+			"invocation_logs": true,
+		},
+	},
+	"routes": [
+		{
+			"pattern": "dstrct-mgmt.com",
+			"zone_name": "dstrct-mgmt.com",
+			"custom_domain": true
+		}
+	],
 }

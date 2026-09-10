@@ -9,8 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as GuidelinesRouteImport } from './routes/guidelines'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ApplyRouteImport } from './routes/apply'
 import { Route as AboutRouteImport } from './routes/about'
@@ -18,14 +18,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ModelsIndexRouteImport } from './routes/models/index'
 import { Route as ModelsSlugRouteImport } from './routes/models/$slug'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GuidelinesRoute = GuidelinesRouteImport.update({
-  id: '/guidelines',
-  path: '/guidelines',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -64,8 +64,8 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/apply': typeof ApplyRoute
   '/contact': typeof ContactRoute
-  '/guidelines': typeof GuidelinesRoute
   '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/models/$slug': typeof ModelsSlugRoute
   '/models/': typeof ModelsIndexRoute
 }
@@ -74,8 +74,8 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/apply': typeof ApplyRoute
   '/contact': typeof ContactRoute
-  '/guidelines': typeof GuidelinesRoute
   '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/models/$slug': typeof ModelsSlugRoute
   '/models': typeof ModelsIndexRoute
 }
@@ -85,8 +85,8 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/apply': typeof ApplyRoute
   '/contact': typeof ContactRoute
-  '/guidelines': typeof GuidelinesRoute
   '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/models/$slug': typeof ModelsSlugRoute
   '/models/': typeof ModelsIndexRoute
 }
@@ -97,8 +97,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/apply'
     | '/contact'
-    | '/guidelines'
     | '/privacy'
+    | '/terms'
     | '/models/$slug'
     | '/models/'
   fileRoutesByTo: FileRoutesByTo
@@ -107,8 +107,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/apply'
     | '/contact'
-    | '/guidelines'
     | '/privacy'
+    | '/terms'
     | '/models/$slug'
     | '/models'
   id:
@@ -117,8 +117,8 @@ export interface FileRouteTypes {
     | '/about'
     | '/apply'
     | '/contact'
-    | '/guidelines'
     | '/privacy'
+    | '/terms'
     | '/models/$slug'
     | '/models/'
   fileRoutesById: FileRoutesById
@@ -128,26 +128,26 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ApplyRoute: typeof ApplyRoute
   ContactRoute: typeof ContactRoute
-  GuidelinesRoute: typeof GuidelinesRoute
   PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
   ModelsSlugRoute: typeof ModelsSlugRoute
   ModelsIndexRoute: typeof ModelsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/guidelines': {
-      id: '/guidelines'
-      path: '/guidelines'
-      fullPath: '/guidelines'
-      preLoaderRoute: typeof GuidelinesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -200,8 +200,8 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ApplyRoute: ApplyRoute,
   ContactRoute: ContactRoute,
-  GuidelinesRoute: GuidelinesRoute,
   PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
   ModelsSlugRoute: ModelsSlugRoute,
   ModelsIndexRoute: ModelsIndexRoute,
 }

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useEffect } from 'react';
-import { fetchModel } from '@/crm/models';
+import { fetchModelFn } from '@/server/fetchContent';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { ErrorPage } from '@/components/layout/ErrorPage';
 import { PhotoSlideshow } from '@/components/ui/PhotoSlideshow';
@@ -13,7 +13,7 @@ import { CACHE_DURATION } from '@/constants/cache';
 
 export const Route = createFileRoute('/models/$slug')({
   loader: async ({ params, context }) => {
-    const model = await fetchModel(params.slug);
+    const model = await fetchModelFn({ data: params.slug });
 
     // Detect device type from request headers during SSR
     let isMobile = false;
@@ -25,7 +25,7 @@ export const Route = createFileRoute('/models/$slug')({
 
     return { model, isMobile };
   },
-  staleTime: CACHE_DURATION.SHORT,
+  staleTime: CACHE_DURATION.NONE,
   errorComponent: ({ error }) => <ErrorPage title='Model' error={error} />,
   component: RouteComponent,
 });

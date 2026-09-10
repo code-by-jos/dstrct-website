@@ -19,7 +19,7 @@ export function ApplicationSuccess() {
           <p>Thank you for your interest in joining DSTRCT.</p>
           <p>
             We have received your application and will review it carefully. If your profile matches our current requirements, we will contact you
-            within the next few weeks.
+            within five working days.
           </p>
           <p>A confirmation email has been sent to your inbox.</p>
         </div>

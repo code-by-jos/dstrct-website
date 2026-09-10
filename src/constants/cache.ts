@@ -2,10 +2,12 @@
  * Cache duration constants (in milliseconds)
  */
 export const CACHE_DURATION = {
-  /** 5 minutes - default for most content */
-  SHORT: 1000 * 60 * 5,
-  /** 15 minutes */
-  MEDIUM: 1000 * 60 * 15,
+  /** No caching - always fetch fresh data */
+  NONE: 0,
+  /** 1 minute - for frequently updated content */
+  SHORT: 1000 * 60,
+  /** 5 minutes */
+  MEDIUM: 1000 * 60 * 5,
   /** 1 hour */
   LONG: 1000 * 60 * 60,
 } as const;

@@ -6,6 +6,8 @@ interface UseSlideshowOptions {
   itemCount: number;
   /** Initial items per slide (will be adjusted on mobile) */
   initialItemsPerSlide?: number;
+  /** Number of items on the first slide (defaults to itemsPerSlide) */
+  firstSlideItemCount?: number;
 }
 
 interface UseSlideshowReturn {
@@ -33,7 +35,7 @@ interface UseSlideshowReturn {
  * Hook for managing slideshow state and navigation.
  * Handles responsive items per slide, transitions, and drag navigation.
  */
-export function useSlideshow({ itemCount, initialItemsPerSlide = 2 }: UseSlideshowOptions): UseSlideshowReturn {
+export function useSlideshow({ itemCount, initialItemsPerSlide = 2, firstSlideItemCount }: UseSlideshowOptions): UseSlideshowReturn {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [itemsPerSlide, setItemsPerSlide] = useState(initialItemsPerSlide);
@@ -57,7 +59,9 @@ export function useSlideshow({ itemCount, initialItemsPerSlide = 2 }: UseSlidesh
     return () => window.removeEventListener('resize', handleResize);
   }, [itemsPerSlide]);
 
-  const totalSlides = Math.ceil(itemCount / itemsPerSlide);
+  const effectiveFirstSlideCount = firstSlideItemCount != null ? Math.min(firstSlideItemCount, itemsPerSlide) : itemsPerSlide;
+  const totalSlides =
+    itemCount <= 0 ? 0 : itemCount <= effectiveFirstSlideCount ? 1 : 1 + Math.ceil((itemCount - effectiveFirstSlideCount) / itemsPerSlide);
 
   const goToPrevious = useCallback(() => {
     setIsTransitioning(true);

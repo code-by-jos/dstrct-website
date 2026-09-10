@@ -20,11 +20,7 @@ export function ApplicantConfirmationEmail({ firstName }: ApplicantConfirmationE
               Thank you for your interest in joining {COMPANY_NAME}. We have received your application and our team will review it carefully.
             </Text>
             <Text style={styles.text}>
-              If your profile matches our current requirements, we will contact you within the next few weeks to discuss the next steps.
-            </Text>
-            <Text style={styles.text}>
-              Please note that due to the high volume of applications we receive, we may not be able to respond to everyone individually. If you
-              don&apos;t hear from us within 4 weeks, feel free to reapply in the future.
+              If your profile matches our current requirements, we will contact you within five working days to discuss the next steps.
             </Text>
           </Section>
 
