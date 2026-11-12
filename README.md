@@ -63,8 +63,8 @@ The workflow installs the locked dependencies with pnpm 9 and Node.js 22. Deploy
 
 ### Configuration
 
-- Enable Blacksmith runners for this repository in the organization's Blacksmith installation.
-- Set the GitHub Actions secret `CLOUDFLARE_API_TOKEN` at repository level, or separately in the `production` and `staging` GitHub environments. Scope it to account `e4c0462505c8548e12ea8ae441ef1244` with **Account / Workers Scripts / Edit**, plus **Zone / Workers Routes / Edit** and **Zone / Zone / Read** for `dstrct-mgmt.com`.
+- The workflow uses `blacksmith-4vcpu-ubuntu-2404` runners through the organization's Blacksmith installation.
+- Each GitHub environment has its own `CLOUDFLARE_API_TOKEN` secret. The tokens are scoped to their matching Worker in account `e4c0462505c8548e12ea8ae441ef1244`, with **Individual Workers Editor** and **Workers Routes Write** for `dstrct-mgmt.com`. To rotate a token, use that Worker's **Settings → Builds → API token for external CI/CD**, then replace the corresponding GitHub environment secret.
 - The Sanity build variables default to project `qanl3ico` and dataset `production`, as in `.env.example`. Both sites initially read the same published content. Override `VITE_SANITY_PROJECT_ID` and `VITE_SANITY_DATASET` using GitHub environment variables to use a separate content dataset later.
 - Configure the runtime secret `RESEND_API_KEY` separately on each Cloudflare Worker under **Settings → Variables and Secrets**. It is not a Vite build variable. The existing production secret stays on the production Worker.
 - Keep Cloudflare's Git-based automatic builds disabled for these Workers so GitHub Actions controls deployments.
