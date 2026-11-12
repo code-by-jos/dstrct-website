@@ -21,9 +21,11 @@ export function SlideshowIndicators({ totalSlides, currentIndex, onSelect, class
       {Array.from({ length: totalSlides }).map((_, index) => (
         <button
           key={index}
+          type='button'
           onClick={() => onSelect(index)}
-          className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex ? 'bg-black w-8' : 'bg-gray-300 hover:bg-gray-400'}`}
+          className={`w-2 h-2 rounded-full transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 ${index === currentIndex ? 'bg-black w-8' : 'bg-gray-300 hover:bg-gray-400'}`}
           aria-label={`Go to slide ${index + 1}`}
+          aria-current={index === currentIndex ? 'true' : undefined}
         />
       ))}
     </div>

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { CarouselNavButton } from '@/components/ui/CarouselNavButton';
+import { SlideshowIndicators } from '@/components/ui/SlideshowIndicators';
 import { Markdown } from '@/components/ui/Markdown';
 import { NewsDialog } from '@/components/news/NewsDialog';
 import type { NewsPost } from '@/types/News';
@@ -48,26 +48,23 @@ export function NewsGallery({ post }: { post: NewsPost }) {
             {photo && <img src={photo.src} alt={photo.alt} className='h-full w-full object-contain' draggable={false} />}
             {multiplePhotos && (
               <>
-                <Button
-                  variant='icon'
+                <CarouselNavButton
+                  direction='prev'
                   onPress={() => move(-1)}
-                  aria-label='Previous photo'
-                  className='absolute left-3 rounded-full bg-white/90 hover:bg-white focus-visible:bg-stone-200 focus-visible:ring-0 focus-visible:ring-offset-0'
-                >
-                  <ChevronLeft className='h-6 w-6' />
-                </Button>
-                <Button
-                  variant='icon'
+                  size='sm'
+                  className='absolute left-3 top-1/2 -translate-y-1/2 focus-visible:bg-stone-200 focus-visible:ring-0 focus-visible:ring-offset-0'
+                />
+                <CarouselNavButton
+                  direction='next'
                   onPress={() => move(1)}
-                  aria-label='Next photo'
-                  className='absolute right-3 rounded-full bg-white/90 hover:bg-white focus-visible:bg-stone-200 focus-visible:ring-0 focus-visible:ring-offset-0'
-                >
-                  <ChevronRight className='h-6 w-6' />
-                </Button>
+                  size='sm'
+                  className='absolute right-3 top-1/2 -translate-y-1/2 focus-visible:bg-stone-200 focus-visible:ring-0 focus-visible:ring-offset-0'
+                />
               </>
             )}
           </div>
-          <p role='status' aria-live='polite' aria-atomic='true' className='py-3 text-center text-xs tracking-wider text-gray-500'>
+          <SlideshowIndicators totalSlides={post.photos.length} currentIndex={index} onSelect={setIndex} />
+          <p role='status' aria-live='polite' aria-atomic='true' className='sr-only'>
             Photo {index + 1} / {post.photos.length}
           </p>
         </div>

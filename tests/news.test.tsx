@@ -111,9 +111,16 @@ describe('news listing and URL-driven gallery', () => {
     expect(document.activeElement).toBe(within(dialog).getByRole('button', { name: 'Close news post' }));
     await user.keyboard('{ArrowRight}');
     expect(within(dialog).getByRole('img').getAttribute('alt')).toBe('Backstage in Paris');
-    expect(within(dialog).getByRole('status').textContent).toContain('Photo 2 / 2');
-    await user.click(within(dialog).getByRole('button', { name: 'Next photo' }));
-    expect(within(dialog).getByRole('status').textContent).toContain('Photo 1 / 2');
+    expect(within(dialog).getByRole('button', { name: 'Go to slide 2' }).getAttribute('aria-current')).toBe('true');
+    await user.click(within(dialog).getByRole('button', { name: 'Next slide' }));
+    expect(within(dialog).getByRole('button', { name: 'Go to slide 1' }).getAttribute('aria-current')).toBe('true');
+    expect(within(dialog).getByRole('img').getAttribute('src')).toBe('/runway.jpg');
+    await user.click(within(dialog).getByRole('button', { name: 'Go to slide 2' }));
+    expect(within(dialog).getByRole('img').getAttribute('src')).toBe('/backstage.jpg');
+    expect(within(dialog).getByRole('button', { name: 'Go to slide 2' }).getAttribute('aria-current')).toBe('true');
+    expect(within(dialog).getByRole('button', { name: 'Go to slide 1' }).hasAttribute('aria-current')).toBe(false);
+    await user.click(within(dialog).getByRole('button', { name: 'Previous slide' }));
+    expect(within(dialog).getByRole('img').getAttribute('src')).toBe('/runway.jpg');
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(router.state.location.pathname).toBe('/news');
@@ -140,17 +147,18 @@ describe('news listing and URL-driven gallery', () => {
     const photoArea = within(dialog).getByRole('img').parentElement!;
     fireEvent.touchStart(photoArea, { touches: [{ clientX: 200, clientY: 100 }] });
     fireEvent.touchEnd(photoArea, { changedTouches: [{ clientX: 100, clientY: 105 }] });
-    expect(within(dialog).getByRole('status').textContent).toContain('Photo 2 / 2');
+    expect(within(dialog).getByRole('button', { name: 'Go to slide 2' }).getAttribute('aria-current')).toBe('true');
     fireEvent.touchStart(photoArea, { touches: [{ clientX: 200, clientY: 100 }] });
     fireEvent.touchEnd(photoArea, { changedTouches: [{ clientX: 100, clientY: 300 }] });
-    expect(within(dialog).getByRole('status').textContent).toContain('Photo 2 / 2');
+    expect(within(dialog).getByRole('button', { name: 'Go to slide 2' }).getAttribute('aria-current')).toBe('true');
   });
 
   it('shows a single-photo post without gallery navigation', async () => {
     await openNews('/news/editorial-0');
     const dialog = await screen.findByRole('dialog', { name: 'Editorial 0' });
-    expect(within(dialog).queryByRole('button', { name: 'Next photo' })).toBeNull();
-    expect(within(dialog).getByRole('status').textContent).toContain('Photo 1 / 1');
+    expect(within(dialog).queryByRole('button', { name: 'Next slide' })).toBeNull();
+    expect(within(dialog).queryByRole('button', { name: /Go to slide/ })).toBeNull();
+    expect(within(dialog).getAllByRole('img')).toHaveLength(1);
     expect(within(dialog).queryByText('General news')).toBeNull();
     expect(within(dialog).getByRole('heading', { name: 'Editorial 0' }).className).toContain('font-bold');
   });
