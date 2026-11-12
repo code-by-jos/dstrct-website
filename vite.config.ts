@@ -6,6 +6,9 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import { cloudflare } from "@cloudflare/vite-plugin";
 
 export default defineConfig({
+  define: {
+    'import.meta.env.VITE_DEPLOY_ENVIRONMENT': JSON.stringify(process.env.CLOUDFLARE_ENV ?? 'staging'),
+  },
   server: {
     port: 3000,
   },

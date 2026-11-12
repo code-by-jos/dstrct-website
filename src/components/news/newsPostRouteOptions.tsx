@@ -1,19 +1,19 @@
 import { NewsDialog } from '@/components/news/NewsDialog';
 import { CACHE_DURATION } from '@/constants/cache';
 import type { NewsPost } from '@/types/News';
+import { createPageMeta } from '@/utils/seo';
 
 export const newsPostRouteOptions = {
   staleTime: CACHE_DURATION.NONE,
   head: ({ loaderData }: { loaderData?: NewsPost }) => ({
     meta: loaderData
-      ? [
-          { title: `${loaderData.title} | DSTRCT` },
-          { name: 'description', content: loaderData.excerpt || loaderData.title },
-          { property: 'og:title', content: `${loaderData.title} | DSTRCT` },
-          { property: 'og:description', content: loaderData.excerpt || loaderData.title },
-          { property: 'og:image', content: loaderData.coverImage.src },
-          { property: 'og:type', content: 'article' },
-        ]
+      ? createPageMeta({
+          title: `${loaderData.title} | DSTRCT`,
+          description: loaderData.excerpt || loaderData.title,
+          image: loaderData.coverImage.src,
+          imageAlt: loaderData.coverImage.alt,
+          type: 'article',
+        })
       : [],
   }),
   pendingComponent: () => (

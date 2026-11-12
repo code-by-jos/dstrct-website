@@ -79,6 +79,16 @@ pnpm deploy:production  # production (explicit)
 
 Authenticate with Wrangler or set `CLOUDFLARE_API_TOKEN` before deploying locally. All commands rebuild before deployment. The default Wrangler configuration also targets staging, so a plain `wrangler deploy` cannot target production by default. Production requires selecting the `production` environment.
 
+## Search appearance
+
+Page titles, descriptions, social previews, and production canonical URLs are managed in `src/utils/seo.ts` and the root route. Model and news detail routes override the shared metadata with their own content. The homepage retains its video-led design and includes Organization/WebSite structured data; the footer is excluded from search snippets.
+
+The favicon uses the D from the supplied DSTRCT wordmark for readability at small sizes. PNG, Apple touch, and multi-size ICO assets are in `public/`, alongside the social sharing image and web manifest.
+
+Only builds made with `CLOUDFLARE_ENV=production` allow indexing. The existing production deployment command sets this automatically; staging and ordinary local builds emit `noindex, follow`. Both environments point canonical URLs to the production domain.
+
+After deploying to production, submit `https://dstrct-mgmt.com/sitemap.xml` in Google Search Console and request indexing of the homepage with URL Inspection. The sitemap lists the main pages; individual model and news URLs remain discoverable through their listings. Keep it updated when adding primary pages. Search engines choose the final title, snippet, and favicon, so changes are not immediate or guaranteed.
+
 ## News
 
 `/news` shows six runway previews in a horizontal strip above **Recent news**. The runway **Show more** link opens `/runway`, a vertical grid of runway posts. News-page posts open at `/news/<slug>`; posts opened from the runway page use `/runway/<slug>`. Direct links open the same popup over their respective listing. Escape, the close button, or clicking the backdrop closes the popup. Left/right arrows and mobile swipes navigate photos.

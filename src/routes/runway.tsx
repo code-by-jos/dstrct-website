@@ -9,7 +9,6 @@ import { CACHE_DURATION } from '@/constants/cache';
 export const Route = createFileRoute('/runway')({
   loader: () => fetchNewsFn({ data: { category: 'runway' } }),
   staleTime: CACHE_DURATION.SHORT,
-  head: () => ({ meta: [{ title: 'Runway news | DSTRCT' }, { name: 'description', content: 'The latest runway appearances from DSTRCT.' }] }),
   errorComponent: ({ error }) => <ErrorPage title='Runway news' error={error} />,
   component: RunwayPage,
 });

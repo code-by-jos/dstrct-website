@@ -4,28 +4,34 @@ import appCss from '../styles.css?url';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Link } from '@/components/ui/Link';
+import { canonicalUrl, getPageMeta, homeStructuredData, normalizePath } from '@/utils/seo';
 
 export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: 'DSTRCT',
-      },
-    ],
-    links: [
-      {
-        rel: 'stylesheet',
-        href: appCss,
-      },
-    ],
-  }),
+  head: ({ matches }) => {
+    const path = normalizePath(matches[matches.length - 1]?.pathname ?? '/');
+    const noIndex =
+      import.meta.env.VITE_DEPLOY_ENVIRONMENT !== 'production' || matches.some((match) => match.status === 'notFound' || match.globalNotFound);
+
+    return {
+      meta: [
+        { charSet: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        ...getPageMeta(path),
+        { property: 'og:url', content: canonicalUrl(path) },
+        { name: 'robots', content: noIndex ? 'noindex, follow' : 'index, follow, max-image-preview:large' },
+        { name: 'theme-color', content: '#ffffff' },
+      ],
+      links: [
+        { rel: 'stylesheet', href: appCss },
+        { rel: 'canonical', href: canonicalUrl(path) },
+        { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
+        { rel: 'icon', href: '/favicon-96.png', type: 'image/png', sizes: '96x96' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png', sizes: '180x180' },
+        { rel: 'manifest', href: '/site.webmanifest' },
+      ],
+      scripts: path === '/' ? [{ type: 'application/ld+json', children: JSON.stringify(homeStructuredData) }] : [],
+    };
+  },
   component: RootComponent,
   notFoundComponent: NotFound,
 });

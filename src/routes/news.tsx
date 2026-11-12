@@ -14,9 +14,6 @@ export const Route = createFileRoute('/news')({
     return { runway, recent };
   },
   staleTime: CACHE_DURATION.SHORT,
-  head: () => ({
-    meta: [{ title: 'News | DSTRCT' }, { name: 'description', content: 'The latest runway appearances, editorials, and news from DSTRCT.' }],
-  }),
   errorComponent: ({ error }) => <ErrorPage title='News' error={error} />,
   component: NewsPage,
 });

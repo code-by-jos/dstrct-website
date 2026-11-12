@@ -29,7 +29,7 @@ function HomePage() {
         <div className='absolute inset-0 flex flex-col items-center justify-center px-4'>
           <img src='/logo-white.png' alt='DSTRCT' className='h-20 md:h-28 w-auto mb-12 md:mb-16' />
 
-          <nav className='flex flex-col md:flex-row gap-2 md:gap-6 text-center'>
+          <nav aria-label='Main navigation' className='flex flex-col md:flex-row gap-2 md:gap-6 text-center'>
             {navLinks.map((link) => (
               <MenuLink key={link.to} to={link.to} className='text-white text-xl md:text-2xl py-3 px-4 hover:text-black'>
                 {link.label}

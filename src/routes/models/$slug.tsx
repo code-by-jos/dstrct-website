@@ -10,6 +10,7 @@ import { Container } from '@/components/ui/Container';
 import { InstagramLink } from '@/components/ui/InstagramLink';
 import { isMobileDevice } from '@/utils/deviceDetection';
 import { CACHE_DURATION } from '@/constants/cache';
+import { createPageMeta } from '@/utils/seo';
 
 export const Route = createFileRoute('/models/$slug')({
   loader: async ({ params, context }) => {
@@ -26,6 +27,16 @@ export const Route = createFileRoute('/models/$slug')({
     return { model, isMobile };
   },
   staleTime: CACHE_DURATION.NONE,
+  head: ({ loaderData }) => ({
+    meta: loaderData?.model
+      ? createPageMeta({
+          title: `${loaderData.model.name} | DSTRCT Model Management`,
+          description: `Discover ${loaderData.model.name}'s portfolio and model profile. Represented by DSTRCT, a boutique model agency based in Amsterdam.`,
+          image: loaderData.model.photo || undefined,
+          imageAlt: `${loaderData.model.name} - DSTRCT`,
+        })
+      : [{ name: 'robots', content: 'noindex, follow' }],
+  }),
   errorComponent: ({ error }) => <ErrorPage title='Model' error={error} />,
   component: RouteComponent,
 });
