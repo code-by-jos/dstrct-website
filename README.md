@@ -48,3 +48,32 @@ The app will be available at http://localhost:3000.
 | `lint`     | Run ESLint                   |
 | `lint:fix` | Run ESLint with auto-fix     |
 | `format`   | Format code with Prettier    |
+
+## Deployment
+
+GitHub Actions builds and deploys pushes to these branches on Blacksmith Ubuntu 24.04 runners:
+
+| Branch    | GitHub environment | Cloudflare Worker        | URL                              |
+| --------- | ------------------ | ------------------------ | -------------------------------- |
+| `main`    | `production`       | `dstrct-website`         | https://dstrct-mgmt.com/         |
+| `staging` | `staging`          | `dstrct-website-staging` | https://staging.dstrct-mgmt.com/ |
+
+The workflow installs the locked dependencies with pnpm 9 and Node.js 22. Deployments to each branch run one at a time. The Cloudflare environment is selected for both the Vite build and Wrangler deployment.
+
+### Configuration
+
+- The workflow uses `blacksmith-4vcpu-ubuntu-2404` runners through the organization's Blacksmith installation.
+- Each GitHub environment has its own `CLOUDFLARE_API_TOKEN` secret. The tokens are scoped to their matching Worker in account `e4c0462505c8548e12ea8ae441ef1244`, with **Individual Workers Editor** and **Workers Routes Write** for `dstrct-mgmt.com`. To rotate a token, use that Worker's **Settings → Builds → API token for external CI/CD**, then replace the corresponding GitHub environment secret.
+- The Sanity build variables default to project `qanl3ico` and dataset `production`, as in `.env.example`. Both sites initially read the same published content. Override `VITE_SANITY_PROJECT_ID` and `VITE_SANITY_DATASET` using GitHub environment variables to use a separate content dataset later.
+- Configure the runtime secret `RESEND_API_KEY` separately on each Cloudflare Worker under **Settings → Variables and Secrets**. It is not a Vite build variable. The existing production secret stays on the production Worker.
+- Keep Cloudflare's Git-based automatic builds disabled for these Workers so GitHub Actions controls deployments.
+
+### Optional local deployment
+
+```bash
+pnpm deploy             # staging
+pnpm deploy:staging     # staging
+pnpm deploy:production  # production (explicit)
+```
+
+Authenticate with Wrangler or set `CLOUDFLARE_API_TOKEN` before deploying locally. All commands rebuild before deployment. The default Wrangler configuration also targets staging, so a plain `wrangler deploy` cannot target production by default. Production requires selecting the `production` environment.

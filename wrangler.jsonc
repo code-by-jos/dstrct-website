@@ -1,6 +1,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "dstrct-website",
+	"name": "dstrct-website-staging",
+	"workers_dev": false,
 	"account_id": "e4c0462505c8548e12ea8ae441ef1244",
 	"compatibility_date": "2025-01-01",
 	"compatibility_flags": [
@@ -15,9 +16,31 @@
 	},
 	"routes": [
 		{
-			"pattern": "dstrct-mgmt.com",
+			"pattern": "staging.dstrct-mgmt.com",
 			"zone_name": "dstrct-mgmt.com",
 			"custom_domain": true
 		}
 	],
+	"env": {
+		"staging": {
+			"name": "dstrct-website-staging",
+			"routes": [
+				{
+					"pattern": "staging.dstrct-mgmt.com",
+					"zone_name": "dstrct-mgmt.com",
+					"custom_domain": true
+				}
+			]
+		},
+		"production": {
+			"name": "dstrct-website",
+			"routes": [
+				{
+					"pattern": "dstrct-mgmt.com",
+					"zone_name": "dstrct-mgmt.com",
+					"custom_domain": true
+				}
+			]
+		}
+	},
 }
