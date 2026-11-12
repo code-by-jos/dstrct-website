@@ -10,12 +10,16 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as RunwayRouteImport } from './routes/runway'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as NewsRouteImport } from './routes/news'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ApplyRouteImport } from './routes/apply'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ModelsIndexRouteImport } from './routes/models/index'
+import { Route as RunwaySlugRouteImport } from './routes/runway/$slug'
+import { Route as NewsSlugRouteImport } from './routes/news/$slug'
 import { Route as ModelsSlugRouteImport } from './routes/models/$slug'
 
 const TermsRoute = TermsRouteImport.update({
@@ -23,9 +27,19 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RunwayRoute = RunwayRouteImport.update({
+  id: '/runway',
+  path: '/runway',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsRoute = NewsRouteImport.update({
+  id: '/news',
+  path: '/news',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -53,6 +67,16 @@ const ModelsIndexRoute = ModelsIndexRouteImport.update({
   path: '/models/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RunwaySlugRoute = RunwaySlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => RunwayRoute,
+} as any)
+const NewsSlugRoute = NewsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => NewsRoute,
+} as any)
 const ModelsSlugRoute = ModelsSlugRouteImport.update({
   id: '/models/$slug',
   path: '/models/$slug',
@@ -64,9 +88,13 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/apply': typeof ApplyRoute
   '/contact': typeof ContactRoute
+  '/news': typeof NewsRouteWithChildren
   '/privacy': typeof PrivacyRoute
+  '/runway': typeof RunwayRouteWithChildren
   '/terms': typeof TermsRoute
   '/models/$slug': typeof ModelsSlugRoute
+  '/news/$slug': typeof NewsSlugRoute
+  '/runway/$slug': typeof RunwaySlugRoute
   '/models/': typeof ModelsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -74,9 +102,13 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/apply': typeof ApplyRoute
   '/contact': typeof ContactRoute
+  '/news': typeof NewsRouteWithChildren
   '/privacy': typeof PrivacyRoute
+  '/runway': typeof RunwayRouteWithChildren
   '/terms': typeof TermsRoute
   '/models/$slug': typeof ModelsSlugRoute
+  '/news/$slug': typeof NewsSlugRoute
+  '/runway/$slug': typeof RunwaySlugRoute
   '/models': typeof ModelsIndexRoute
 }
 export interface FileRoutesById {
@@ -85,9 +117,13 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/apply': typeof ApplyRoute
   '/contact': typeof ContactRoute
+  '/news': typeof NewsRouteWithChildren
   '/privacy': typeof PrivacyRoute
+  '/runway': typeof RunwayRouteWithChildren
   '/terms': typeof TermsRoute
   '/models/$slug': typeof ModelsSlugRoute
+  '/news/$slug': typeof NewsSlugRoute
+  '/runway/$slug': typeof RunwaySlugRoute
   '/models/': typeof ModelsIndexRoute
 }
 export interface FileRouteTypes {
@@ -97,9 +133,13 @@ export interface FileRouteTypes {
     | '/about'
     | '/apply'
     | '/contact'
+    | '/news'
     | '/privacy'
+    | '/runway'
     | '/terms'
     | '/models/$slug'
+    | '/news/$slug'
+    | '/runway/$slug'
     | '/models/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -107,9 +147,13 @@ export interface FileRouteTypes {
     | '/about'
     | '/apply'
     | '/contact'
+    | '/news'
     | '/privacy'
+    | '/runway'
     | '/terms'
     | '/models/$slug'
+    | '/news/$slug'
+    | '/runway/$slug'
     | '/models'
   id:
     | '__root__'
@@ -117,9 +161,13 @@ export interface FileRouteTypes {
     | '/about'
     | '/apply'
     | '/contact'
+    | '/news'
     | '/privacy'
+    | '/runway'
     | '/terms'
     | '/models/$slug'
+    | '/news/$slug'
+    | '/runway/$slug'
     | '/models/'
   fileRoutesById: FileRoutesById
 }
@@ -128,7 +176,9 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ApplyRoute: typeof ApplyRoute
   ContactRoute: typeof ContactRoute
+  NewsRoute: typeof NewsRouteWithChildren
   PrivacyRoute: typeof PrivacyRoute
+  RunwayRoute: typeof RunwayRouteWithChildren
   TermsRoute: typeof TermsRoute
   ModelsSlugRoute: typeof ModelsSlugRoute
   ModelsIndexRoute: typeof ModelsIndexRoute
@@ -143,11 +193,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/runway': {
+      id: '/runway'
+      path: '/runway'
+      fullPath: '/runway'
+      preLoaderRoute: typeof RunwayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news': {
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -185,6 +249,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModelsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/runway/$slug': {
+      id: '/runway/$slug'
+      path: '/$slug'
+      fullPath: '/runway/$slug'
+      preLoaderRoute: typeof RunwaySlugRouteImport
+      parentRoute: typeof RunwayRoute
+    }
+    '/news/$slug': {
+      id: '/news/$slug'
+      path: '/$slug'
+      fullPath: '/news/$slug'
+      preLoaderRoute: typeof NewsSlugRouteImport
+      parentRoute: typeof NewsRoute
+    }
     '/models/$slug': {
       id: '/models/$slug'
       path: '/models/$slug'
@@ -195,12 +273,35 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface NewsRouteChildren {
+  NewsSlugRoute: typeof NewsSlugRoute
+}
+
+const NewsRouteChildren: NewsRouteChildren = {
+  NewsSlugRoute: NewsSlugRoute,
+}
+
+const NewsRouteWithChildren = NewsRoute._addFileChildren(NewsRouteChildren)
+
+interface RunwayRouteChildren {
+  RunwaySlugRoute: typeof RunwaySlugRoute
+}
+
+const RunwayRouteChildren: RunwayRouteChildren = {
+  RunwaySlugRoute: RunwaySlugRoute,
+}
+
+const RunwayRouteWithChildren =
+  RunwayRoute._addFileChildren(RunwayRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ApplyRoute: ApplyRoute,
   ContactRoute: ContactRoute,
+  NewsRoute: NewsRouteWithChildren,
   PrivacyRoute: PrivacyRoute,
+  RunwayRoute: RunwayRouteWithChildren,
   TermsRoute: TermsRoute,
   ModelsSlugRoute: ModelsSlugRoute,
   ModelsIndexRoute: ModelsIndexRoute,

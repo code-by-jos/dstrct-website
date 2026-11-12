@@ -1,0 +1,46 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main, staging]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: github.event.deleted == false
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 20
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+      url: ${{ github.ref_name == 'main' && 'https://dstrct-mgmt.com' || 'https://staging.dstrct-mgmt.com' }}
+    concurrency:
+      group: deploy-${{ github.ref_name }}
+      cancel-in-progress: false
+    env:
+      DEPLOY_ENVIRONMENT: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+      VITE_SANITY_PROJECT_ID: ${{ vars.VITE_SANITY_PROJECT_ID || 'qanl3ico' }}
+      VITE_SANITY_DATASET: ${{ vars.VITE_SANITY_DATASET || 'production' }}
+      CLOUDFLARE_ACCOUNT_ID: e4c0462505c8548e12ea8ae441ef1244
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Check deployment credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: test -n "$CLOUDFLARE_API_TOKEN" || { echo 'Configure the CLOUDFLARE_API_TOKEN GitHub Actions secret.'; exit 1; }
+      - name: Build and deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: pnpm run "deploy:$DEPLOY_ENVIRONMENT"

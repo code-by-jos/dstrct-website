@@ -10,7 +10,8 @@ interface MenuLinkProps {
 
 export function MenuLink({ to, children, className = '' }: MenuLinkProps) {
   const location = useLocation();
-  const isActive = location.pathname === to;
+  const isActive =
+    location.pathname === to || (to !== '/' && location.pathname.startsWith(`${to}/`)) || (to === '/news' && location.pathname.startsWith('/runway'));
 
   return (
     <Link
