@@ -16,6 +16,7 @@ function HomePage() {
           loop
           muted
           playsInline
+          poster='/home-video-poster.webp'
           preload='metadata'
           className='w-full h-full object-cover'
           style={{ filter: 'brightness(0.5) saturate(0)' }}
