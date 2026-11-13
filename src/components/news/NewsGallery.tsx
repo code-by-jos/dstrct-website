@@ -25,9 +25,6 @@ export function NewsGallery({ post }: { post: NewsPost }) {
 
         <div className='p-6 md:p-8 lg:max-h-[calc(min(72dvh,850px)+2.5rem)] lg:overflow-y-auto'>
           <h2 className='font-serif text-3xl font-bold leading-tight'>{post.title}</h2>
-          <time dateTime={post.publishedAt} className='mt-4 block text-xs uppercase tracking-wider text-gray-500'>
-            {new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(post.publishedAt))}
-          </time>
           {post.body ? (
             <div className='mt-6'>
               <Markdown>{post.body}</Markdown>
