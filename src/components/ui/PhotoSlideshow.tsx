@@ -146,7 +146,7 @@ export function PhotoSlideshow({ ref, photos, photoAlts, className = '', initial
     <div className={`relative flex flex-col ${className}`} suppressHydrationWarning>
       {/* Photo display area - fixed height container */}
       <div
-        className={`relative flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 ${layout === 'dialog' ? 'h-[55dvh] min-h-64 bg-gray-50 lg:h-[min(72dvh,850px)]' : ''} ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
+        className={`relative flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 ${layout === 'dialog' ? 'h-[55dvh] min-h-64 lg:h-[min(72dvh,850px)]' : ''} ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
         style={{ ...(layout === 'page' ? { height: 'calc(100vh - 320px)', minHeight: '400px' } : {}), touchAction: 'pan-y pinch-zoom' }}
         suppressHydrationWarning
         {...dragProps}
