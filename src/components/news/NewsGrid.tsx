@@ -18,7 +18,7 @@ export function NewsGrid({ category, initialPage, listingPath = '/news' }: NewsG
   const sentinelRef = useRef<HTMLDivElement>(null);
   const measuredRows = useRef(new Map<string, number>());
   const galleryOpen = useLocation({ select: (location) => location.pathname.replace(/\/$/, '') !== listingPath });
-  const [layout, setLayout] = useState({ columns: 1, width: 0, top: 0 });
+  const [layout, setLayout] = useState({ columns: category === 'runway' ? 1 : 2, width: 0, top: 0 });
   const virtualized = posts.length > 24 && layout.width > 0;
   const label = category === 'runway' ? 'Runway news' : 'Recent news';
 
@@ -28,9 +28,15 @@ export function NewsGrid({ category, initialPage, listingPath = '/news' }: NewsG
     function measure() {
       if (!grid) return;
       const rect = grid.getBoundingClientRect();
-      let columns = window.innerWidth >= 640 ? 2 : 1;
-      if (window.innerWidth >= 1280) columns = category === 'runway' ? 5 : 3;
-      else if (category === 'runway' && window.innerWidth >= 1024) columns = 3;
+      let columns = 2;
+      if (category === 'runway') {
+        columns = window.innerWidth >= 640 ? 2 : 1;
+        if (window.innerWidth >= 1280) columns = 5;
+        else if (window.innerWidth >= 1024) columns = 3;
+      } else {
+        if (window.innerWidth >= 1024) columns = 5;
+        else if (window.innerWidth >= 768) columns = 3;
+      }
       // Seed virtual estimates with the rows already on screen, avoiding a
       // scroll jump when the growing regular grid switches to virtual rows.
       const cards = Array.from(grid.children).filter((child) => child.getAttribute('role') === 'listitem');
@@ -56,7 +62,7 @@ export function NewsGrid({ category, initialPage, listingPath = '/news' }: NewsG
     count: Math.ceil(posts.length / layout.columns),
     estimateSize: (index) =>
       measuredRows.current.get(`${layout.columns}:${layout.width}:${posts[index * layout.columns]?.id}`) ??
-      ((layout.width - (layout.columns - 1) * 32) / layout.columns) * (category === 'runway' ? 1.5 : 1) + 120,
+      ((layout.width - (layout.columns - 1) * 32) / layout.columns) * (category === 'runway' ? 1.5 : 4 / 3) + 120,
     getItemKey: (index) => posts[index * layout.columns]?.id ?? index,
     overscan: 2,
     gap: 48,
@@ -100,7 +106,7 @@ export function NewsGrid({ category, initialPage, listingPath = '/news' }: NewsG
             ? 'relative'
             : category === 'runway'
               ? 'grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'
-              : 'grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 xl:grid-cols-3'
+              : 'grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-3 lg:grid-cols-5'
         }
         style={virtualized ? { height: virtualizer.getTotalSize(), overflowAnchor: 'none' } : undefined}
       >

@@ -20,7 +20,7 @@ export function NewsCard({ post, listingPath = '/news' }: { post: NewsSummary; l
         aria-haspopup='dialog'
       >
         <div
-          className={`relative overflow-hidden rounded-lg bg-stone-100 transition-shadow duration-700 group-hover:shadow-[0_16px_40px_-18px_rgba(70,54,37,0.4)] group-focus-visible:shadow-[0_16px_40px_-18px_rgba(70,54,37,0.4)] motion-reduce:transition-none ${post.category === 'runway' ? 'aspect-2/3' : 'aspect-square'}`}
+          className={`relative overflow-hidden rounded-lg bg-stone-100 transition-shadow duration-700 group-hover:shadow-[0_16px_40px_-18px_rgba(70,54,37,0.4)] group-focus-visible:shadow-[0_16px_40px_-18px_rgba(70,54,37,0.4)] motion-reduce:transition-none ${post.category === 'runway' ? 'aspect-2/3' : 'aspect-3/4'}`}
         >
           <img
             src={post.coverImage.src}
@@ -28,7 +28,7 @@ export function NewsCard({ post, listingPath = '/news' }: { post: NewsSummary; l
             loading='lazy'
             decoding='async'
             width={900}
-            height={post.category === 'runway' ? 1350 : 900}
+            height={post.category === 'runway' ? 1350 : 1200}
             className='h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035] group-focus-visible:scale-[1.035] motion-reduce:transition-none motion-reduce:transform-none'
           />
         </div>

@@ -253,55 +253,63 @@ describe('news listing and URL-driven gallery', () => {
     expect(within(screen.getByRole('list', { name: 'Recent news' })).getAllByRole('link')).toHaveLength(2);
   });
 
-  it('virtualizes a long feed and renders offscreen rows when they scroll into view', async () => {
-    const intersect = installIntersectionObserver();
-    const manyPosts: NewsPost[] = Array.from({ length: 60 }, (_, index) => ({
-      ...generalPosts[0],
-      id: `post-${index}`,
-      slug: `post-${index}`,
-      title: `Post ${index}`,
-    }));
-    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
-      x: 0,
-      y: 0,
-      left: 0,
-      top: 0,
-      right: 960,
-      bottom: 500,
-      width: 960,
-      height: 500,
-      toJSON: () => ({}),
-    });
-    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(500);
-    vi.mocked(fetchNewsFn).mockImplementation(async ({ data }) => {
-      if (data.category === 'runway') return { posts: [runwayPost], nextCursor: null };
-      const start = data.cursor ? Number(data.cursor.id.split('-')[1]) + 1 : 0;
-      const end = start + 12;
-      return {
-        posts: manyPosts.slice(start, end),
-        nextCursor: end < manyPosts.length ? { publishedAt: manyPosts[0].publishedAt, id: `post-${end - 1}` } : null,
-      };
-    });
-    await openNews();
-    const list = screen.getByRole('list', { name: 'Recent news' });
-    expect(within(list).getAllByRole('link')).toHaveLength(12);
-    intersect();
-    await waitFor(() => expect(within(list).getAllByRole('link')).toHaveLength(24));
-    intersect();
-    await waitFor(() => expect(list.style.height).not.toBe(''));
-    expect(within(list).getAllByRole('link').length).toBeLessThan(24);
-    expect(within(list).queryByRole('heading', { name: 'Post 20' })).toBeNull();
-    const previousScrollY = window.scrollY;
-    try {
-      Object.defineProperty(window, 'scrollY', { configurable: true, value: 5000 });
-      fireEvent.scroll(window);
-      await within(list).findByRole('heading', { name: 'Post 20' });
-      expect(within(list).getAllByRole('link').length).toBeLessThan(24);
-    } finally {
-      Object.defineProperty(window, 'scrollY', { configurable: true, value: previousScrollY });
-    }
-    expect(fetchNewsFn).toHaveBeenCalledTimes(4);
-  });
+  it.each([
+    { viewportWidth: 390, columns: 2, scrollY: 5000 },
+    { viewportWidth: 1440, columns: 5, scrollY: 2200 },
+  ])(
+    'virtualizes a long feed in $columns columns at $viewportWidth px and renders offscreen posts on scroll',
+    async ({ viewportWidth, columns, scrollY }) => {
+      vi.stubGlobal('innerWidth', viewportWidth);
+      const intersect = installIntersectionObserver();
+      const manyPosts: NewsPost[] = Array.from({ length: 60 }, (_, index) => ({
+        ...generalPosts[0],
+        id: `post-${index}`,
+        slug: `post-${index}`,
+        title: `Post ${index}`,
+      }));
+      vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+        x: 0,
+        y: 0,
+        left: 0,
+        top: 0,
+        right: 960,
+        bottom: 500,
+        width: 960,
+        height: 500,
+        toJSON: () => ({}),
+      });
+      vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(500);
+      vi.mocked(fetchNewsFn).mockImplementation(async ({ data }) => {
+        if (data.category === 'runway') return { posts: [runwayPost], nextCursor: null };
+        const start = data.cursor ? Number(data.cursor.id.split('-')[1]) + 1 : 0;
+        const end = start + 12;
+        return {
+          posts: manyPosts.slice(start, end),
+          nextCursor: end < manyPosts.length ? { publishedAt: manyPosts[0].publishedAt, id: `post-${end - 1}` } : null,
+        };
+      });
+      await openNews();
+      const list = screen.getByRole('list', { name: 'Recent news' });
+      expect(within(list).getAllByRole('link')).toHaveLength(12);
+      intersect();
+      await waitFor(() => expect(within(list).getAllByRole('link')).toHaveLength(24));
+      intersect();
+      await waitFor(() => expect(list.style.height).not.toBe(''));
+      expect((list.firstElementChild as HTMLElement).style.gridTemplateColumns).toContain(`repeat(${columns},`);
+      expect(within(list).getAllByRole('link').length).toBeLessThan(36);
+      expect(within(list).queryByRole('heading', { name: 'Post 20' })).toBeNull();
+      const previousScrollY = window.scrollY;
+      try {
+        Object.defineProperty(window, 'scrollY', { configurable: true, value: scrollY });
+        fireEvent.scroll(window);
+        await within(list).findByRole('heading', { name: 'Post 20' });
+        expect(within(list).getAllByRole('link').length).toBeLessThan(36);
+      } finally {
+        Object.defineProperty(window, 'scrollY', { configurable: true, value: previousScrollY });
+      }
+      expect(fetchNewsFn).toHaveBeenCalledTimes(4);
+    },
+  );
 
   it('paginates runway posts without requesting recent posts', async () => {
     const intersect = installIntersectionObserver();
