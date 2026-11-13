@@ -144,7 +144,7 @@ describe('news listing and URL-driven gallery', () => {
   it('supports horizontal swipes while ignoring vertical scrolling', async () => {
     await openNews('/news/paris-runway');
     const dialog = await screen.findByRole('dialog');
-    const photoArea = within(dialog).getByRole('img').parentElement!;
+    const photoArea = within(dialog).getByRole('img').parentElement!.parentElement!;
     fireEvent.touchStart(photoArea, { touches: [{ clientX: 200, clientY: 100 }] });
     fireEvent.touchEnd(photoArea, { changedTouches: [{ clientX: 100, clientY: 105 }] });
     expect(within(dialog).getByRole('button', { name: 'Go to slide 2' }).getAttribute('aria-current')).toBe('true');

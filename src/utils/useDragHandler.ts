@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useMemo } from 'react';
+import { useRef, useState, useCallback, useMemo, useEffect } from 'react';
 
 interface DragHandlers {
   onMouseDown: (e: React.MouseEvent) => void;
@@ -7,7 +7,8 @@ interface DragHandlers {
   onMouseLeave: () => void;
   onTouchStart: (e: React.TouchEvent) => void;
   onTouchMove: (e: React.TouchEvent) => void;
-  onTouchEnd: () => void;
+  onTouchEnd: (e?: React.TouchEvent) => void;
+  onTouchCancel: () => void;
 }
 
 interface UseDragHandlerReturn {
@@ -29,13 +30,19 @@ export function useDragHandler(): UseDragHandlerReturn {
   const dragStartRef = useRef(0);
   const dragOffsetRef = useRef(0);
   const wasDraggedRef = useRef(false);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  useEffect(() => {
+    if (!isDragging) return;
+    document.body.classList.add('cursor-grabbing', 'select-none');
+    return () => document.body.classList.remove('cursor-grabbing', 'select-none');
+  }, [isDragging]);
 
   const handleDragStart = useCallback((clientX: number) => {
     setIsDragging(true);
     dragStartRef.current = clientX;
     dragOffsetRef.current = 0;
     wasDraggedRef.current = false;
-    document.body.classList.add('cursor-grabbing', 'select-none');
   }, []);
 
   const handleDragMove = useCallback(
@@ -53,13 +60,12 @@ export function useDragHandler(): UseDragHandlerReturn {
 
       return dragOffsetRef.current;
     },
-    [isDragging]
+    [isDragging],
   );
 
   const handleDragEnd = useCallback(() => {
     if (!isDragging) return;
     setIsDragging(false);
-    document.body.classList.remove('cursor-grabbing', 'select-none');
 
     const finalOffset = dragOffsetRef.current;
     dragOffsetRef.current = 0;
@@ -83,6 +89,7 @@ export function useDragHandler(): UseDragHandlerReturn {
 
       return {
         onMouseDown: (e: React.MouseEvent) => {
+          if (e.button !== 0 || (e.target as HTMLElement).closest('button')) return;
           e.preventDefault();
           handleDragStart(e.clientX);
         },
@@ -91,12 +98,49 @@ export function useDragHandler(): UseDragHandlerReturn {
         onMouseLeave: () => {
           if (isDragging) onDragEndWithCallback();
         },
-        onTouchStart: (e: React.TouchEvent) => handleDragStart(e.touches[0].clientX),
-        onTouchMove: (e: React.TouchEvent) => handleDragMove(e.touches[0].clientX),
-        onTouchEnd: onDragEndWithCallback,
+        onTouchStart: (e: React.TouchEvent) => {
+          touchStartRef.current = null;
+          if (e.touches.length !== 1 || (e.target as HTMLElement).closest('button')) {
+            handleDragEnd();
+            return;
+          }
+          const touch = e.touches[0];
+          touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+          handleDragStart(touch.clientX);
+        },
+        onTouchMove: (e: React.TouchEvent) => {
+          const start = touchStartRef.current;
+          if (!start) return;
+          if (e.touches.length !== 1) {
+            touchStartRef.current = null;
+            handleDragEnd();
+            return;
+          }
+          const touch = e.touches[0];
+          const horizontal = Math.abs(touch.clientX - start.x) > Math.abs(touch.clientY - start.y) * 1.5;
+          handleDragMove(horizontal ? touch.clientX : start.x);
+        },
+        onTouchEnd: (e?: React.TouchEvent) => {
+          const start = touchStartRef.current;
+          touchStartRef.current = null;
+          if (e && start) {
+            const touch = e.changedTouches[0];
+            if (!touch || Math.abs(touch.clientX - start.x) <= Math.abs(touch.clientY - start.y) * 1.5) {
+              handleDragEnd();
+              return;
+            }
+            // Use the final touch position even if the browser skipped a move event.
+            handleDragMove(touch.clientX);
+          }
+          onDragEndWithCallback();
+        },
+        onTouchCancel: () => {
+          touchStartRef.current = null;
+          handleDragEnd();
+        },
       };
     },
-    [handleDragStart, handleDragMove, handleDragEnd, isDragging]
+    [handleDragStart, handleDragMove, handleDragEnd, isDragging],
   );
 
   return useMemo(
@@ -108,6 +152,6 @@ export function useDragHandler(): UseDragHandlerReturn {
       handleDragEnd,
       getDragProps,
     }),
-    [isDragging, handleDragStart, handleDragMove, handleDragEnd, getDragProps]
+    [isDragging, handleDragStart, handleDragMove, handleDragEnd, getDragProps],
   );
 }

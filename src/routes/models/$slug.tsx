@@ -30,8 +30,8 @@ export const Route = createFileRoute('/models/$slug')({
   head: ({ loaderData }) => ({
     meta: loaderData?.model
       ? createPageMeta({
-          title: `${loaderData.model.name} | DSTRCT Model Management`,
-          description: `Discover ${loaderData.model.name}'s portfolio and model profile. Represented by DSTRCT, a boutique model agency based in Amsterdam.`,
+          title: `${loaderData.model.name} | DSTRCT`,
+          description: `Discover ${loaderData.model.name} portfolio and model profile. Represented by DSTRCT, an international model agency based in Amsterdam.`,
           image: loaderData.model.photo || undefined,
           imageAlt: `${loaderData.model.name} - DSTRCT`,
         })

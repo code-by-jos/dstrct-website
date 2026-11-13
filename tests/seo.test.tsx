@@ -5,7 +5,10 @@ import { createMemoryHistory, createRoute, createRouter, RouterProvider } from '
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Route as rootRoute } from '@/routes/__root';
 import { Route as homeRoute } from '@/routes/index';
+import { Route as modelRoute } from '@/routes/models/$slug';
 import { canonicalUrl, createPageMeta, getPageMeta, HOME_DESCRIPTION, HOME_TITLE, homeStructuredData, SITE_URL } from '@/utils/seo';
+
+vi.mock('@/server/fetchContent', () => ({ fetchModelFn: vi.fn() }));
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -24,11 +27,88 @@ async function loadPage(path = '/', environment = 'production') {
 }
 
 describe('search metadata', () => {
+  it.each([
+    {
+      path: '/',
+      title: 'DSTRCT Management | International Model Agency in Amsterdam',
+      description:
+        'DSTRCT is an international model agency based in Amsterdam, offering personal management and long-term career development for models. Discover our talent.',
+    },
+    {
+      path: '/models',
+      title: 'Models | DSTRCT',
+      description:
+        'Discover the DSTRCT model board. Explore portfolios and meet the talent represented by our International model agency in Amsterdam.',
+    },
+    {
+      path: '/about',
+      title: 'About Our Model Agency | DSTRCT',
+      description:
+        'Meet DSTRCT, a boutique model agency in Amsterdam focused on personal management, model development, and building long-term careers.',
+    },
+    {
+      path: '/contact',
+      title: 'Contact & Model Bookings | DSTRCT',
+      description:
+        'Contact DSTRCT in Amsterdam for model bookings, representation, and collaborations. Visits to our boutique model agency are by appointment.',
+    },
+    {
+      path: '/apply',
+      title: 'Become a Model | DSTRCT',
+      description:
+        'Interested in becoming a model? Apply to DSTRCT, an international model agency in Amsterdam offering personal guidance and talent development.',
+    },
+    {
+      path: '/news',
+      title: 'Model News, Editorials & Runway | DSTRCT',
+      description: 'Explore runway appearances, editorials, and the latest updates from the models represented by DSTRCT in Amsterdam',
+    },
+    {
+      path: '/runway',
+      title: 'Runway News | DSTRCT',
+      description: 'Discover the latest runway appearances and fashion show highlights from DSTRCT models.',
+    },
+    {
+      path: '/privacy',
+      title: 'Privacy policy | DSTRCT',
+      description: 'Read the privacy policy to learn how we handle personal information and protect your privacy.',
+    },
+    {
+      path: '/terms',
+      title: 'Terms & Conditions | DSTRCT',
+      description: 'Read the terms and conditions for DSTRCT model management.',
+    },
+  ])('matches the approved document copy for $path across all metadata', ({ path, title, description }) => {
+    const meta = getPageMeta(path);
+    expect(meta).toContainEqual({ title });
+    expect(meta).toContainEqual({ name: 'description', content: description });
+    expect(meta).toContainEqual({ property: 'og:title', content: title });
+    expect(meta).toContainEqual({ property: 'og:description', content: description });
+    expect(meta).toContainEqual({ name: 'twitter:title', content: title });
+    expect(meta).toContainEqual({ name: 'twitter:description', content: description });
+  });
+
+  it('uses the approved model title and description with the model name substituted', async () => {
+    const head = await modelRoute.options.head!({
+      loaderData: { model: { name: 'Alex Example', photo: 'https://cdn.sanity.io/model.jpg' }, isMobile: false },
+    } as Parameters<NonNullable<typeof modelRoute.options.head>>[0]);
+    const title = 'Alex Example | DSTRCT';
+    const description = 'Discover Alex Example portfolio and model profile. Represented by DSTRCT, an international model agency based in Amsterdam.';
+    expect(head.meta).toContainEqual({ title });
+    expect(head.meta).toContainEqual({ name: 'description', content: description });
+    expect(head.meta).toContainEqual({ property: 'og:title', content: title });
+    expect(head.meta).toContainEqual({ property: 'og:description', content: description });
+    expect(head.meta).toContainEqual({ name: 'twitter:title', content: title });
+    expect(head.meta).toContainEqual({ name: 'twitter:description', content: description });
+  });
+
   it('describes the homepage and uses an absolute social preview', () => {
     const meta = getPageMeta('/');
     expect(meta).toContainEqual({ title: HOME_TITLE });
     expect(meta).toContainEqual({ name: 'description', content: HOME_DESCRIPTION });
     expect(meta).toContainEqual({ property: 'og:image', content: `${SITE_URL}/og-image.png` });
+    expect(meta).toContainEqual({ property: 'og:image:alt', content: HOME_TITLE });
+    expect(meta).toContainEqual({ name: 'twitter:image:alt', content: HOME_TITLE });
     expect(meta).toContainEqual({ name: 'twitter:card', content: 'summary_large_image' });
   });
 
@@ -65,7 +145,7 @@ describe('search metadata', () => {
 
   it('identifies the brand, website, and official Instagram in structured data', () => {
     const [organization, website] = homeStructuredData['@graph'];
-    expect(organization).toMatchObject({ name: 'DSTRCT', url: `${SITE_URL}/`, logo: `${SITE_URL}/brand-logo.png` });
+    expect(organization).toMatchObject({ name: 'DSTRCT', url: `${SITE_URL}/`, logo: `${SITE_URL}/brand-logo.png`, description: HOME_DESCRIPTION });
     expect(organization.sameAs).toContain('https://www.instagram.com/dstrctmgmt/');
     expect(website).toMatchObject({ '@type': 'WebSite', name: 'DSTRCT', publisher: { '@id': organization['@id'] } });
   });
@@ -102,7 +182,7 @@ describe('rendered homepage and route head', () => {
     expect(router.state.matches[0].meta).toContainEqual({ property: 'og:url', content: `${SITE_URL}/news/editorial` });
     await router.navigate({ to: '/models' });
     expect(router.state.matches[0].links).toContainEqual({ rel: 'canonical', href: `${SITE_URL}/models` });
-    expect(router.state.matches[0].meta).toContainEqual({ title: 'Models | DSTRCT Amsterdam' });
+    expect(router.state.matches[0].meta).toContainEqual({ title: 'Models | DSTRCT' });
     expect(router.state.matches[0].headScripts).toEqual([]);
   });
 

@@ -2,9 +2,9 @@ import { INSTAGRAM_HANDLE } from '@/constants/navigation';
 
 export const SITE_URL = 'https://dstrct-mgmt.com';
 export const SITE_NAME = 'DSTRCT';
-export const HOME_TITLE = 'DSTRCT | Boutique Model Agency in Amsterdam';
+export const HOME_TITLE = 'DSTRCT Management | International Model Agency in Amsterdam';
 export const HOME_DESCRIPTION =
-  'DSTRCT is a boutique model agency based in Amsterdam, offering personal management and long-term career development for models. Discover our talent.';
+  'DSTRCT is an international model agency based in Amsterdam, offering personal management and long-term career development for models. Discover our talent.';
 
 interface PageMetadata {
   title: string;
@@ -17,35 +17,36 @@ interface PageMetadata {
 const pageMetadata: Record<string, PageMetadata> = {
   '/': { title: HOME_TITLE, description: HOME_DESCRIPTION },
   '/models': {
-    title: 'Models | DSTRCT Amsterdam',
-    description: 'Discover the DSTRCT model board. Explore portfolios and meet the talent represented by our boutique model agency in Amsterdam.',
+    title: 'Models | DSTRCT',
+    description:
+      'Discover the DSTRCT model board. Explore portfolios and meet the talent represented by our International model agency in Amsterdam.',
   },
   '/about': {
-    title: 'About Our Model Agency | DSTRCT Amsterdam',
+    title: 'About Our Model Agency | DSTRCT',
     description:
       'Meet DSTRCT, a boutique model agency in Amsterdam focused on personal management, model development, and building long-term careers.',
   },
   '/contact': {
-    title: 'Contact & Model Bookings | DSTRCT Amsterdam',
+    title: 'Contact & Model Bookings | DSTRCT',
     description:
       'Contact DSTRCT in Amsterdam for model bookings, representation, and collaborations. Visits to our boutique model agency are by appointment.',
   },
   '/apply': {
-    title: 'Become a Model | Apply to DSTRCT Amsterdam',
+    title: 'Become a Model | DSTRCT',
     description:
-      'Interested in becoming a model? Apply to DSTRCT, a boutique model agency in Amsterdam offering personal guidance and talent development.',
+      'Interested in becoming a model? Apply to DSTRCT, an international model agency in Amsterdam offering personal guidance and talent development.',
   },
   '/news': {
     title: 'Model News, Editorials & Runway | DSTRCT',
-    description: 'Explore runway appearances, editorials, and the latest updates from the models represented by DSTRCT in Amsterdam.',
+    description: 'Explore runway appearances, editorials, and the latest updates from the models represented by DSTRCT in Amsterdam',
   },
   '/runway': {
     title: 'Runway News | DSTRCT',
     description: 'Discover the latest runway appearances and fashion show highlights from DSTRCT models.',
   },
   '/privacy': {
-    title: 'Privacy Policy | DSTRCT',
-    description: 'Read the DSTRCT privacy policy to learn how we handle personal information and protect your privacy.',
+    title: 'Privacy policy | DSTRCT',
+    description: 'Read the privacy policy to learn how we handle personal information and protect your privacy.',
   },
   '/terms': {
     title: 'Terms & Conditions | DSTRCT',
@@ -62,13 +63,7 @@ export function canonicalUrl(path: string) {
   return `${SITE_URL}${normalized.startsWith('/') ? normalized : `/${normalized}`}`;
 }
 
-export function createPageMeta({
-  title,
-  description,
-  image = `${SITE_URL}/og-image.png`,
-  imageAlt = 'DSTRCT model management, Amsterdam',
-  type = 'website',
-}: PageMetadata) {
+export function createPageMeta({ title, description, image = `${SITE_URL}/og-image.png`, imageAlt = HOME_TITLE, type = 'website' }: PageMetadata) {
   return [
     { title },
     { name: 'description', content: description },

@@ -1,17 +1,26 @@
-import { useEffect } from 'react';
+import { useEffect, useImperativeHandle, type Ref } from 'react';
 import { CarouselNavButton } from '@/components/ui/CarouselNavButton';
 import { SlideshowIndicators } from '@/components/ui/SlideshowIndicators';
 import { useDragHandler } from '@/utils/useDragHandler';
 import { useSlideshow } from '@/hooks/useSlideshow';
 import { useImagePreloader } from '@/hooks/useImagePreloader';
 
+export interface PhotoSlideshowHandle {
+  goToPrevious: () => void;
+  goToNext: () => void;
+}
+
 interface PhotoSlideshowProps {
+  ref?: Ref<PhotoSlideshowHandle>;
+  photoAlts?: string[];
+  /** Dialogs keep their controls inside the image area. */
+  layout?: 'page' | 'dialog';
   photos: string[];
   className?: string;
   initialPhotosPerSlide?: number;
 }
 
-export function PhotoSlideshow({ photos, className = '', initialPhotosPerSlide = 2 }: PhotoSlideshowProps) {
+export function PhotoSlideshow({ ref, photos, photoAlts, className = '', initialPhotosPerSlide = 2, layout = 'page' }: PhotoSlideshowProps) {
   const firstSlideItemCount = 1;
 
   const { currentIndex, setCurrentIndex, itemsPerSlide, totalSlides, isHydrated, isTransitioning, goToPrevious, goToNext, handleDragEnd } =
@@ -20,6 +29,8 @@ export function PhotoSlideshow({ photos, className = '', initialPhotosPerSlide =
       initialItemsPerSlide: initialPhotosPerSlide,
       firstSlideItemCount,
     });
+
+  useImperativeHandle(ref, () => ({ goToPrevious, goToNext }), [goToPrevious, goToNext]);
 
   const { isDragging, getDragProps } = useDragHandler();
 
@@ -135,8 +146,8 @@ export function PhotoSlideshow({ photos, className = '', initialPhotosPerSlide =
     <div className={`relative flex flex-col ${className}`} suppressHydrationWarning>
       {/* Photo display area - fixed height container */}
       <div
-        className={`relative flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
-        style={{ height: 'calc(100vh - 320px)', minHeight: '400px' }}
+        className={`relative flex items-center justify-center gap-1 md:gap-2 px-2 md:px-4 ${layout === 'dialog' ? 'h-[55dvh] min-h-64 bg-gray-50 lg:h-[min(72dvh,850px)]' : ''} ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
+        style={{ ...(layout === 'page' ? { height: 'calc(100vh - 320px)', minHeight: '400px' } : {}), touchAction: 'pan-y pinch-zoom' }}
         suppressHydrationWarning
         {...dragProps}
       >
@@ -154,37 +165,38 @@ export function PhotoSlideshow({ photos, className = '', initialPhotosPerSlide =
 
             <img
               src={photo}
-              alt={`Photo ${startIdx + index + 1}`}
-              className={`max-w-full max-h-full rounded-lg transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+              alt={photoAlts?.[startIdx + index] ?? `Photo ${startIdx + index + 1}`}
+              className={`max-w-full max-h-full object-contain rounded-lg transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
               loading='eager'
               draggable={false}
             />
           </div>
         ))}
+        {renderTotalSlides > 1 && (
+          <>
+            <CarouselNavButton
+              direction='prev'
+              onPress={goToPrevious}
+              size='sm'
+              className={`absolute top-1/2 -translate-y-1/2 ${layout === 'dialog' ? 'left-3 focus-visible:bg-stone-200 focus-visible:ring-0 focus-visible:ring-offset-0' : ''}`}
+              style={layout === 'page' ? { left: 'calc((100vw - 100%) / -2 + 1rem)' } : undefined}
+            />
+            <CarouselNavButton
+              direction='next'
+              onPress={goToNext}
+              size='sm'
+              className={`absolute top-1/2 -translate-y-1/2 ${layout === 'dialog' ? 'right-3 focus-visible:bg-stone-200 focus-visible:ring-0 focus-visible:ring-offset-0' : ''}`}
+              style={layout === 'page' ? { right: 'calc((100vw - 100%) / -2 + 1rem)' } : undefined}
+            />
+          </>
+        )}
       </div>
-
-      {/* Navigation arrows - at screen edges horizontally, centered on photo area vertically */}
-      {renderTotalSlides > 1 && (
-        <>
-          <CarouselNavButton
-            direction='prev'
-            onPress={goToPrevious}
-            size='sm'
-            className='absolute top-1/2 -translate-y-1/2'
-            style={{ left: 'calc((100vw - 100%) / -2 + 1rem)' }}
-          />
-          <CarouselNavButton
-            direction='next'
-            onPress={goToNext}
-            size='sm'
-            className='absolute top-1/2 -translate-y-1/2'
-            style={{ right: 'calc((100vw - 100%) / -2 + 1rem)' }}
-          />
-        </>
-      )}
 
       {/* Slide indicators */}
       <SlideshowIndicators totalSlides={renderTotalSlides} currentIndex={currentIndex} onSelect={setCurrentIndex} />
+      <p role='status' aria-live='polite' aria-atomic='true' className='sr-only'>
+        Slide {currentIndex + 1} / {renderTotalSlides}
+      </p>
     </div>
   );
 }
